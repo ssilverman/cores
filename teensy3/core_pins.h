@@ -2347,9 +2347,17 @@ void delay(uint32_t msec);
 
 extern volatile uint32_t systick_millis_count;
 
-static inline uint32_t millis(void) __attribute__((always_inline, unused));
-static inline uint32_t millis(void)
-{
+#ifdef __cplusplus
+// Don't mark as static because we want the function to have external linkage
+// and for there to be only one copy.
+#define STATIC_INLINE inline
+#else
+// It's still appropriate in C to keep 'static inline'
+#define STATIC_INLINE static inline
+#endif  // __cplusplus
+
+STATIC_INLINE uint32_t millis(void) __attribute__((always_inline, unused));
+STATIC_INLINE uint32_t millis(void) {
 	// Reading a volatile variable to another volatile
 	// seems redundant, but isn't for some cases.
 	// Eventually this should probably be replaced by a
@@ -2362,6 +2370,7 @@ static inline uint32_t millis(void)
 	volatile uint32_t ret = systick_millis_count; // single aligned 32 bit is atomic
 	return ret;
 }
+#undef STATIC_INLINE
 
 uint32_t micros(void);
 

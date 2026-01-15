@@ -2433,14 +2433,24 @@ extern volatile uint32_t F_BUS_ACTUAL;
 extern volatile uint32_t scale_cpu_cycles_to_microseconds;
 extern volatile uint32_t systick_millis_count;
 
-static inline uint32_t millis(void) __attribute__((always_inline, unused));
+#ifdef __cplusplus
+// Don't mark as static because we want the function to have external linkage
+// and for there to be only one copy.
+#define STATIC_INLINE inline
+#else
+// It's still appropriate in C to keep 'static inline'
+#define STATIC_INLINE static inline
+#endif  // __cplusplus
+
+STATIC_INLINE uint32_t millis(void) __attribute__((always_inline, unused));
 // Returns the number of milliseconds since your program started running.
 // This 32 bit number will roll back to zero after about 49.7 days.  For a
 // simpler way to build delays or timeouts, consider using elapsedMillis.
-static inline uint32_t millis(void)
+STATIC_INLINE uint32_t millis(void)
 {
 	return systick_millis_count;
 }
+#undef STATIC_INLINE
 
 uint32_t micros(void);
 
